@@ -1,4 +1,3 @@
-import sys
 import os
 import csv
 import urllib.request
@@ -123,12 +122,3 @@ def read_csv(file):
             # print(f"location:  {row['Combined_Key']} has {row['Active']} active cases")
 
 
-if __name__ == '__main__':
-    def main():
-        data = '../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/04-13-2020.csv'
-        if len(sys.argv) > 1:
-            data = sys.argv[1]
-        read_csv(data)
-
-
-    main()

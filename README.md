@@ -8,5 +8,5 @@ Data importers for Covid-19 data so that people can visualize public data sets i
 * clone the JHU CSSE data COVID19 repo https://github.com/CSSEGISandData/COVID-19
 * run this program and give it the path to one of the csse_covid_19_daily report files in the JHU CSSE files
 ```shell script
-python read_ccse_csv_data.py ../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/04-13-2020.csv
+python import_covid_data/bin/import_ccse_csv ../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/04-13-2020.csv
 ```
