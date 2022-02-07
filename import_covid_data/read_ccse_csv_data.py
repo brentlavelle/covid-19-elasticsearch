@@ -6,25 +6,26 @@ import datetime
 import json
 import re
 
-HOST = "localhost"
-PORT = 9200
+BASE_URL = "http://localhost:9200"
 BASE_INDEX = "covid_ccse-"
 
 
-def es_http(method:str, url: str, record: dict = {}) -> None:
+def es_http(method: str, url: str, record: dict = {}) -> None:
     header = {"Content-Type": "application/json"}
-    if dict:
+    if record:
         request = urllib.request.Request(url=url, data=json.dumps(record).encode('utf8'), method=method, headers=header)
     else:
         request = urllib.request.Request(url=url, method=method, headers=header)
     urllib.request.urlopen(request)
 
+
 def es_create_index(index: str):
-    index_url = f"http://{HOST}:{PORT}/{BASE_INDEX}{index}"
+    index_url = f"{BASE_URL}/{index}"
+    print(f"DELETE {index_url}")
     try:
-        es_http('DELETE', index_url, {})
+        es_http('DELETE', index_url)
     except HTTPError as ex:
-        if ex.code != 404:
+        if ex.code != 400:
             raise Exception(f"Could not delete index {index}: HTTP {ex.code}")
     except Exception as ex:
         raise Exception(f"Could not delete index {index}: {ex}")
@@ -64,7 +65,7 @@ def es_create_index(index: str):
 
 
 def post_record(record, index):
-    es_url = f"http://{HOST}:{PORT}/{index}/_doc"
+    es_url = f"{BASE_URL}/{index}/_doc"
     # print(f"putting: [{es_url}]: {record}")
     try:
         es_http('POST', es_url, record)
@@ -107,9 +108,9 @@ def convert_record(record: dict) -> dict:
 def read_csv(file):
     file_base = os.path.basename(file)
     if match := re.match('^(\d\d?)-(\d\d?)-(\d{4})', file_base):
-        index = f"{match.group(3)}-{match.group(1)}-{match.group(2)}"
+        index = f"{BASE_INDEX}{match.group(3)}-{match.group(1)}-{match.group(2)}"
     else:
-        index = "X" + file_base
+        index = f"{BASE_INDEX}-file={file_base}"
 
     es_create_index(index)
 
@@ -119,6 +120,6 @@ def read_csv(file):
             timestamp = datetime.datetime.strptime(row['Last_Update'], '%Y-%m-%d %H:%M:%S')
             row['Last_Update'] = timestamp
             post_record(convert_record(row), index)
-            # print(f"location:  {row['Combined_Key']} has {row['Active']} active cases")
+            print(f"{row['Active']:10} active cases at: {row['Combined_Key']} has")
 
 
