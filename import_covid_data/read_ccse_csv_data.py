@@ -25,7 +25,7 @@ def es_create_index(index: str):
     try:
         es_http('DELETE', index_url)
     except HTTPError as ex:
-        if ex.code != 400:
+        if ex.code != 404:
             raise Exception(f"Could not delete index {index}: HTTP {ex.code}")
     except Exception as ex:
         raise Exception(f"Could not delete index {index}: {ex}")
@@ -46,7 +46,7 @@ def es_create_index(index: str):
                 "county": {"type": "keyword"},
                 "state": {"type": "keyword"},
                 "country": {"type": "keyword"},
-                "last_updated": {"type": "date"},
+                "last_update": {"type": "date"},
                 "location_point": {"type": "geo_point"},
                 "confirmed": {"type": "long"},
                 "deaths": {"type": "long"},
@@ -97,10 +97,6 @@ def convert_record(record: dict) -> dict:
         if source in record:
             if (len(record[source]) > 0):
                 new[destination] = record[source]
-            else:
-                print(f"null in source {source} dest: {destination}")
-        # if source in record and (len(record[source]) > 0):
-        #     new[destination] = record[source]
 
     return new
 
@@ -120,6 +116,6 @@ def read_csv(file):
             timestamp = datetime.datetime.strptime(row['Last_Update'], '%Y-%m-%d %H:%M:%S')
             row['Last_Update'] = timestamp
             post_record(convert_record(row), index)
-            print(f"{row['Active']:10} active cases at: {row['Combined_Key']} has")
+            print(f"{int(row['Active']): 10} active cases at: {row['Combined_Key']}")
 
 
