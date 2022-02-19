@@ -5,6 +5,10 @@ import json
 BASE_URL = "http://localhost:9200"
 BASE_INDEX = "covid_ccse-"
 
+# Doc counts are around 3100 per day with about 650KB so 1 shard is good
+SHARDS = 1
+# Loading data locally into a 1 node cluster so no replicas, if I lose data I reload it. Backed up in Github.com
+REPLICAS = 0
 
 def es_http(method: str, url: str, record: dict = {}) -> None:
     header = {"Content-Type": "application/json"}
@@ -27,13 +31,11 @@ def es_create_index(index: str):
     except Exception as ex:
         raise Exception(f"Could not delete index {index}: {ex}")
 
-    # _template defaults commented out
+
     settings = {
-        # "index_patterns": ["covid_ccse-*"],
-        # "version": 1,
         "settings": {
-            "number_of_shards": 1,
-            "number_of_replicas": 0,
+            "number_of_shards": SHARDS,
+            "number_of_replicas": REPLICAS,
         },
         "mappings": {
             "_source": {"enabled": True},
@@ -65,7 +67,6 @@ class ES:
     def __init__(self, index_fragment: str):
         self.index = f"{BASE_INDEX}-{index_fragment}"
         es_create_index(self.index)
-
 
     def post_record(self, record):
         es_url = f"{BASE_URL}/{self.index}/_doc"
