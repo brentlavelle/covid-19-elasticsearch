@@ -46,7 +46,8 @@ def read_csv(file):
         for row in reader:
             timestamp = datetime.datetime.strptime(row['Last_Update'], '%Y-%m-%d %H:%M:%S')
             row['Last_Update'] = timestamp
-            es.post_record(convert_record(row))
+            # es.post_record(convert_record(row))
+            es.bulk_add(convert_record(row))
             print(f"{int(row['Active']): 10} active cases at: {row['Combined_Key']}")
-
+    es.bulk_write()
 
