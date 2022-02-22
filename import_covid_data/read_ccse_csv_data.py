@@ -34,6 +34,7 @@ def convert_record(record: dict) -> dict:
 
 def read_csv(file):
     file_base = os.path.basename(file)
+    print(f"reading file '{file}'")
     if match := re.match('^(\d\d?)-(\d\d?)-(\d{4})', file_base):
         index_fragment = f"{match.group(3)}-{match.group(1)}-{match.group(2)}"
     else:
@@ -48,6 +49,5 @@ def read_csv(file):
             row['Last_Update'] = timestamp
             # es.post_record(convert_record(row))
             es.bulk_add(convert_record(row))
-            print(f"{int(row['Active']): 10} active cases at: {row['Combined_Key']}")
     es.bulk_write()
 
